@@ -1,0 +1,33 @@
+# Root .gitignore for CodePulse
+
+# IDE / Editor files
+.vscode/
+.idea/
+*.swp
+*.swo
+
+# OS files
+.DS_Store
+Thumbs.db
+
+# Dependencies (if any at root)
+node_modules/
+
+# Local env files
+.env
+.env.local
+
+# Subproject node_modules (optional but good practice to ensure they are ignored from root)
+backend/node_modules/
+frontend/node_modules/
+
+# Subproject env files
+backend/.env
+backend/.env.*
+frontend/.env
+frontend/.env.*
+
+# Subproject build folders
+backend/dist/
+frontend/dist/
+frontend/dist-ssr/

@@ -1,10 +1,16 @@
 import axios from 'axios';
 
+const getBaseURL = () => {
+  const url = import.meta.env.VITE_API_URL || 'https://code-pulse-dtxz.onrender.com/api';
+  return url.endsWith('/api') ? url : `${url}/api`;
+};
+
 const api = axios.create({
-  baseURL: import.meta.env.VITE_API_URL || 'https://code-pulse-dtxz.onrender.com/api',
+  baseURL: getBaseURL(),
   headers: { 'Content-Type': 'application/json' },
   timeout: 30000,
 });
+
 
 // Request interceptor — attach token
 api.interceptors.request.use(
@@ -30,9 +36,10 @@ api.interceptors.response.use(
         if (!refreshToken) throw new Error('No refresh token');
 
         const res = await axios.post(
-          `${import.meta.env.VITE_API_URL || 'https://code-pulse-dtxz.onrender.com/api'}/auth/refresh`,
+          `${getBaseURL()}/auth/refresh`,
           { refreshToken }
         );
+
 
         const { accessToken, refreshToken: newRefreshToken } = res.data.data;
         localStorage.setItem('accessToken', accessToken);

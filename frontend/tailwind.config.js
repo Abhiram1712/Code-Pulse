@@ -106,9 +106,10 @@ export default {
         },
       },
       fontFamily: {
-        sans: ['Inter', 'system-ui', 'sans-serif'],
-        mono: ['JetBrains Mono', 'Fira Code', 'monospace'],
-        display: ['Outfit', 'Inter', 'sans-serif'],
+        sans:    ['Space Grotesk', 'Inter', 'system-ui', 'sans-serif'],
+        mono:    ['JetBrains Mono', 'Fira Code', 'monospace'],
+        display: ['Syne', 'Space Grotesk', 'Inter', 'sans-serif'],
+        body:    ['Space Grotesk', 'Inter', 'sans-serif'],
       },
       borderRadius: {
         'xl2': '1rem',

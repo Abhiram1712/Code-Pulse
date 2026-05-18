@@ -1,14 +1,14 @@
 import { motion } from 'framer-motion';
-import { RefreshCw, ExternalLink, CheckCircle, XCircle, Clock } from 'lucide-react';
+import { RefreshCw, ExternalLink, CheckCircle, XCircle, Clock, Zap } from 'lucide-react';
 import Card, { CardHeader, CardTitle } from '../ui/Card';
 import { getPlatformColor, formatRelativeTime } from '../../lib/utils';
 import { useSyncPlatform } from '../../hooks/useQueries';
 
 const PLATFORM_META = {
-  leetcode: { name: 'LeetCode', icon: '🟨', url: 'https://leetcode.com' },
-  codeforces: { name: 'Codeforces', icon: '🔵', url: 'https://codeforces.com' },
-  codechef: { name: 'CodeChef', icon: '🍳', url: 'https://codechef.com' },
-  interviewbit: { name: 'InterviewBit', icon: '🟢', url: 'https://interviewbit.com' },
+  leetcode:    { name: 'LeetCode',    short: 'LC', url: 'https://leetcode.com',    emoji: '🟨' },
+  codeforces:  { name: 'Codeforces',  short: 'CF', url: 'https://codeforces.com',  emoji: '🔵' },
+  codechef:    { name: 'CodeChef',    short: 'CC', url: 'https://codechef.com',    emoji: '🟤' },
+  interviewbit:{ name: 'InterviewBit',short: 'IB', url: 'https://interviewbit.com',emoji: '🟢' },
 };
 
 const PlatformCard = ({ platform, stats, userPlatform }) => {
@@ -16,52 +16,56 @@ const PlatformCard = ({ platform, stats, userPlatform }) => {
   const colors = getPlatformColor(platform);
   const syncMutation = useSyncPlatform();
   const isSyncing = syncMutation.isPending && syncMutation.variables === platform;
-
   const isConnected = userPlatform?.connected;
   const syncStatus = stats?.syncStatus;
 
   return (
     <motion.div
-      className="glass-card p-4 relative overflow-hidden group"
-      whileHover={{ y: -3 }}
+      className="panel panel-hover relative overflow-hidden p-4"
+      whileHover={{ y: -2 }}
       transition={{ duration: 0.2 }}
     >
-      {/* Glow on hover */}
-      <div
-        className="absolute inset-0 opacity-0 group-hover:opacity-100 transition-opacity duration-500 pointer-events-none rounded-2xl"
-        style={{ background: `radial-gradient(ellipse at top left, ${colors.primary}12, transparent 70%)` }}
-      />
+      {/* Top color line */}
+      <div className="absolute top-0 left-0 right-0 h-0.5 rounded-t-2xl"
+        style={{ background: `linear-gradient(90deg, ${colors.primary}80, ${colors.primary}, ${colors.primary}40)` }} />
 
-      <div className="flex items-start justify-between mb-3">
+      {/* Background glow on hover */}
+      <div className="absolute inset-0 opacity-0 group-hover:opacity-100 transition-opacity pointer-events-none rounded-2xl"
+        style={{ background: `radial-gradient(ellipse at top left, ${colors.primary}0a, transparent 70%)` }} />
+
+      {/* Header */}
+      <div className="flex items-center justify-between mb-3">
         <div className="flex items-center gap-2.5">
-          <span className="text-2xl">{meta.icon}</span>
+          <div className="w-8 h-8 rounded-lg flex items-center justify-center text-sm font-bold"
+            style={{ background: `${colors.primary}15`, border: `1px solid ${colors.primary}25` }}>
+            <span className="text-base">{meta.emoji}</span>
+          </div>
           <div>
-            <h4 className="font-semibold text-sm text-slate-200">{meta.name}</h4>
-            <p className="text-xs text-slate-500">
+            <p className="text-[13px] font-semibold" style={{ color: colors.primary, fontFamily: 'var(--font-display)' }}>
+              {meta.name}
+            </p>
+            <p className="text-[11px]" style={{ color: 'var(--text-3)' }}>
               {userPlatform?.username ? `@${userPlatform.username}` : 'Not connected'}
             </p>
           </div>
         </div>
-
-        <div className="flex items-center gap-1.5">
+        <div className="flex items-center gap-1">
           {isConnected && (
-            <button
+            <motion.button
               onClick={() => syncMutation.mutate(platform)}
               disabled={isSyncing}
-              className="p-1.5 rounded-lg transition-all duration-200 hover:bg-white/5"
-              style={{ color: colors.primary }}
+              whileTap={{ scale: 0.9 }}
+              className="w-7 h-7 rounded-lg flex items-center justify-center transition-all"
+              style={{ background: `${colors.primary}12`, color: colors.primary }}
               title="Sync now"
             >
-              <RefreshCw className={`w-3.5 h-3.5 ${isSyncing ? 'animate-spin' : ''}`} />
-            </button>
+              <RefreshCw size={12} className={isSyncing ? 'animate-spin' : ''} />
+            </motion.button>
           )}
-          <a
-            href={meta.url}
-            target="_blank"
-            rel="noopener noreferrer"
-            className="p-1.5 rounded-lg hover:bg-white/5 text-slate-500 transition-all duration-200"
-          >
-            <ExternalLink className="w-3.5 h-3.5" />
+          <a href={meta.url} target="_blank" rel="noopener noreferrer"
+            className="w-7 h-7 rounded-lg flex items-center justify-center transition-all hover:bg-white/5"
+            style={{ color: 'var(--text-3)' }}>
+            <ExternalLink size={12} />
           </a>
         </div>
       </div>
@@ -70,28 +74,32 @@ const PlatformCard = ({ platform, stats, userPlatform }) => {
         <>
           {/* Main stat */}
           <div className="mb-3">
-            <motion.p
-              className="text-3xl font-bold font-display"
-              style={{ color: colors.primary }}
-              initial={{ opacity: 0 }}
-              animate={{ opacity: 1 }}
-            >
-              {stats?.totalSolved ?? '—'}
-            </motion.p>
-            <p className="text-xs text-slate-500">problems solved</p>
+            <div className="flex items-end gap-1.5">
+              <motion.p
+                className="text-3xl font-bold"
+                style={{ color: colors.primary, fontFamily: 'var(--font-display)', lineHeight: 1 }}
+                initial={{ opacity: 0, y: 10 }}
+                animate={{ opacity: 1, y: 0 }}
+                transition={{ duration: 0.4 }}
+              >
+                {stats?.totalSolved ?? '—'}
+              </motion.p>
+              <span className="text-xs pb-1" style={{ color: 'var(--text-3)' }}>solved</span>
+            </div>
           </div>
 
-          {/* Platform-specific stats */}
+          {/* Platform-specific data */}
           {platform === 'leetcode' && (
-            <div className="flex gap-2 mb-3">
+            <div className="grid grid-cols-3 gap-1.5 mb-3">
               {[
-                { label: 'E', value: stats.easySolved, color: '#22c55e' },
-                { label: 'M', value: stats.mediumSolved, color: '#f59e0b' },
-                { label: 'H', value: stats.hardSolved, color: '#ef4444' },
+                { label: 'Easy', value: stats.easySolved, color: '#10b981' },
+                { label: 'Med', value: stats.mediumSolved, color: '#f59e0b' },
+                { label: 'Hard', value: stats.hardSolved, color: '#f43f5e' },
               ].map(({ label, value, color }) => (
-                <div key={label} className="flex-1 text-center rounded-lg py-1.5" style={{ background: `${color}10`, border: `1px solid ${color}20` }}>
-                  <p className="text-sm font-bold" style={{ color }}>{value ?? 0}</p>
-                  <p className="text-xs text-slate-600">{label}</p>
+                <div key={label} className="rounded-lg py-1.5 text-center"
+                  style={{ background: `${color}0e`, border: `1px solid ${color}1a` }}>
+                  <p className="text-sm font-bold font-mono" style={{ color }}>{value ?? 0}</p>
+                  <p className="text-[10px]" style={{ color: 'var(--text-3)' }}>{label}</p>
                 </div>
               ))}
             </div>
@@ -99,40 +107,41 @@ const PlatformCard = ({ platform, stats, userPlatform }) => {
 
           {(platform === 'codeforces' || platform === 'codechef') && (
             <div className="flex items-center gap-2 mb-3">
-              <span className="text-xs text-slate-500">Rating:</span>
-              <span
-                className="text-sm font-bold font-mono"
-                style={{ color: colors.primary }}
-              >
-                {stats?.rating ?? '—'}
-              </span>
-              {platform === 'codeforces' && stats?.rank && (
-                <span className="text-xs text-slate-500">({stats.rank})</span>
-              )}
-              {platform === 'codechef' && stats?.stars && (
-                <span className="text-xs">{'⭐'.repeat(Math.min(stats.stars, 7))}</span>
-              )}
+              <div className="flex items-center gap-1.5 px-2.5 py-1 rounded-lg"
+                style={{ background: `${colors.primary}12`, border: `1px solid ${colors.primary}20` }}>
+                <Zap size={10} style={{ color: colors.primary }} />
+                <span className="text-sm font-bold font-mono" style={{ color: colors.primary }}>
+                  {stats?.rating ?? '—'}
+                </span>
+                {platform === 'codeforces' && stats?.rank && (
+                  <span className="text-[10px]" style={{ color: 'var(--text-3)' }}>• {stats.rank}</span>
+                )}
+                {platform === 'codechef' && stats?.stars > 0 && (
+                  <span className="text-[10px] text-amber-400">• {'★'.repeat(Math.min(stats.stars, 7))}</span>
+                )}
+              </div>
             </div>
           )}
 
           {/* Sync status */}
-          <div className="flex items-center gap-1.5 pt-2 border-t border-white/5">
+          <div className="flex items-center gap-1.5 pt-2.5"
+            style={{ borderTop: '1px solid rgba(255,255,255,0.05)' }}>
             {syncStatus === 'success' ? (
-              <CheckCircle className="w-3 h-3 text-emerald-500" />
+              <CheckCircle size={11} className="text-emerald-500" />
             ) : syncStatus === 'failed' ? (
-              <XCircle className="w-3 h-3 text-red-500" />
+              <XCircle size={11} className="text-rose-500" />
             ) : (
-              <Clock className="w-3 h-3 text-slate-600" />
+              <Clock size={11} style={{ color: 'var(--text-3)' }} />
             )}
-            <span className="text-xs text-slate-600">
-              {stats.lastSynced ? `Synced ${formatRelativeTime(stats.lastSynced)}` : 'Never synced'}
+            <span className="text-[10px] font-mono" style={{ color: 'var(--text-3)' }}>
+              {stats.lastSynced ? formatRelativeTime(stats.lastSynced) : 'Never synced'}
             </span>
           </div>
         </>
       ) : (
-        <div className="py-4 text-center">
-          <p className="text-xs text-slate-600 mb-2">Not connected</p>
-          <a href="/settings" className="btn-ghost text-xs py-1.5 px-3">
+        <div className="py-5 text-center">
+          <p className="text-xs mb-3" style={{ color: 'var(--text-3)' }}>Not connected</p>
+          <a href="/settings" className="btn-cyber text-xs py-1.5 px-3" style={{ fontSize: '11px' }}>
             Connect →
           </a>
         </div>
@@ -144,16 +153,31 @@ const PlatformCard = ({ platform, stats, userPlatform }) => {
 const PlatformCards = ({ platformStats = [], userPlatforms = {} }) => {
   const statsMap = {};
   platformStats.forEach(s => { statsMap[s.platform] = s; });
+  const connectedCount = Object.values(userPlatforms).filter(p => p.connected).length;
 
   return (
     <Card>
       <CardHeader>
-        <CardTitle>Platform Overview</CardTitle>
-        <span className="section-label">{Object.values(userPlatforms).filter(p => p.connected).length}/4 connected</span>
+        <CardTitle icon={null}>
+          <span className="grad-text" style={{ fontFamily: 'var(--font-display)', fontSize: '14px', fontWeight: 600 }}>
+            Platform Overview
+          </span>
+        </CardTitle>
+        <div className="flex items-center gap-2">
+          <div className="flex">
+            {[...Array(4)].map((_, i) => (
+              <div key={i} className="w-2 h-2 rounded-full -ml-0.5 first:ml-0"
+                style={{
+                  background: i < connectedCount ? '#10b981' : 'rgba(255,255,255,0.1)',
+                  boxShadow: i < connectedCount ? '0 0 4px #10b981' : 'none'
+                }} />
+            ))}
+          </div>
+          <span className="section-label">{connectedCount}/4</span>
+        </div>
       </CardHeader>
-
       <div className="grid grid-cols-2 gap-3">
-        {Object.keys(PLATFORM_META).map((platform, i) => (
+        {Object.keys(PLATFORM_META).map(platform => (
           <PlatformCard
             key={platform}
             platform={platform}

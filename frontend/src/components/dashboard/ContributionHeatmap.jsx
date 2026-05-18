@@ -2,95 +2,96 @@ import { useState, useMemo } from 'react';
 import { motion } from 'framer-motion';
 import { GitCommit } from 'lucide-react';
 import Card, { CardHeader, CardTitle } from '../ui/Card';
-import { generateHeatmapColor } from '../../lib/utils';
-import { format, startOfWeek, addDays, subDays, isSameDay, parseISO } from 'date-fns';
+import { format, startOfWeek, addDays, subDays } from 'date-fns';
 
 const MONTHS = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'];
 const DAYS = ['', 'Mon', '', 'Wed', '', 'Fri', ''];
 
+const getHeatColor = (count, max) => {
+  if (!count || count === 0) return 'rgba(255,255,255,0.04)';
+  const t = Math.min(count / Math.max(max, 1), 1);
+  if (t < 0.2) return 'rgba(0,212,255,0.18)';
+  if (t < 0.4) return 'rgba(0,212,255,0.35)';
+  if (t < 0.65) return 'rgba(0,212,255,0.55)';
+  if (t < 0.85) return 'rgba(124,58,237,0.75)';
+  return 'rgba(232,121,249,0.95)';
+};
+
 const ContributionHeatmap = ({ data = [] }) => {
   const [tooltip, setTooltip] = useState(null);
 
-  // Build a map from dateString -> data
   const dataMap = useMemo(() => {
-    const map = {};
-    data.forEach(d => { map[d.date] = d; });
-    return map;
+    const m = {};
+    data.forEach(d => { m[d.date] = d; });
+    return m;
   }, [data]);
 
-  // Build 52 weeks grid
   const weeks = useMemo(() => {
     const today = new Date();
-    const startDate = subDays(today, 364);
-    const weekStart = startOfWeek(startDate, { weekStartsOn: 0 });
-
-    const weeksArr = [];
-    let current = weekStart;
-    while (current <= today) {
+    const start = subDays(today, 364);
+    const weekStart = startOfWeek(start, { weekStartsOn: 0 });
+    const arr = [];
+    let cur = weekStart;
+    while (cur <= today) {
       const week = [];
       for (let d = 0; d < 7; d++) {
-        const day = addDays(current, d);
-        const dateStr = format(day, 'yyyy-MM-dd');
-        const info = dataMap[dateStr];
-        week.push({
-          date: day,
-          dateStr,
-          count: info?.count || 0,
-          submissions: info?.submissions || 0,
-          future: day > today
-        });
+        const day = addDays(cur, d);
+        const ds = format(day, 'yyyy-MM-dd');
+        const info = dataMap[ds];
+        week.push({ date: day, ds, count: info?.count || 0, submissions: info?.submissions || 0, future: day > today });
       }
-      weeksArr.push(week);
-      current = addDays(current, 7);
+      arr.push(week);
+      cur = addDays(cur, 7);
     }
-    return weeksArr;
+    return arr;
   }, [dataMap]);
 
-  // Month labels
   const monthLabels = useMemo(() => {
     const labels = [];
     weeks.forEach((week, wi) => {
-      const firstDay = week[0];
-      if (firstDay.date.getDate() <= 7) {
-        labels.push({ month: MONTHS[firstDay.date.getMonth()], weekIndex: wi });
+      if (week[0].date.getDate() <= 7) {
+        labels.push({ month: MONTHS[week[0].date.getMonth()], wi });
       }
     });
     return labels;
   }, [weeks]);
 
-  const totalContributions = data.reduce((sum, d) => sum + d.count, 0);
+  const totalContributions = data.reduce((s, d) => s + d.count, 0);
   const maxCount = Math.max(...data.map(d => d.count), 1);
 
   return (
     <Card className="overflow-hidden">
       <CardHeader>
-        <CardTitle icon={GitCommit}>Contribution Graph</CardTitle>
-        <span className="text-xs text-slate-500">
-          <span className="text-cyan-400 font-semibold">{totalContributions}</span> problems in the last year
-        </span>
+        <CardTitle icon={GitCommit} iconBg="rgba(0,212,255,0.1)">
+          <span style={{ color: 'var(--text)' }}>Contribution Graph</span>
+        </CardTitle>
+        <div className="flex items-center gap-2">
+          <span className="text-xs font-mono" style={{ color: '#00d4ff' }}>{totalContributions}</span>
+          <span className="text-xs" style={{ color: 'var(--text-3)' }}>problems / year</span>
+        </div>
       </CardHeader>
 
-      <div className="overflow-x-auto scrollbar-hidden pb-2">
-        <div className="relative" style={{ minWidth: weeks.length * 14 + 30 }}>
+      <div className="overflow-x-auto scrollbar-none">
+        <div className="relative pb-1" style={{ minWidth: weeks.length * 13 + 30 }}>
           {/* Month labels */}
-          <div className="flex mb-2 pl-8">
-            {monthLabels.map(({ month, weekIndex }) => (
-              <div
-                key={`${month}-${weekIndex}`}
-                className="text-xs text-slate-600 absolute"
-                style={{ left: weekIndex * 14 + 30 }}
+          <div className="relative h-5 pl-8 mb-1">
+            {monthLabels.map(({ month, wi }) => (
+              <span
+                key={`${month}-${wi}`}
+                className="absolute text-[10px] font-mono"
+                style={{ left: wi * 13 + 32, color: 'var(--text-3)' }}
               >
                 {month}
-              </div>
+              </span>
             ))}
           </div>
 
-          <div className="flex gap-0.5 mt-4">
+          <div className="flex gap-0.5">
             {/* Day labels */}
             <div className="flex flex-col gap-0.5 mr-1.5">
-              {DAYS.map((day, i) => (
-                <div key={i} className="h-[11px] flex items-center text-[9px] text-slate-600 w-6">
-                  {day}
+              {DAYS.map((d, i) => (
+                <div key={i} className="h-[10px] flex items-center w-6">
+                  <span style={{ fontSize: '8px', color: 'var(--text-3)', fontFamily: 'var(--font-mono)' }}>{d}</span>
                 </div>
               ))}
             </div>
@@ -98,30 +99,28 @@ const ContributionHeatmap = ({ data = [] }) => {
             {/* Grid */}
             {weeks.map((week, wi) => (
               <div key={wi} className="flex flex-col gap-0.5">
-                {week.map((day) => (
-                  <motion.div
-                    key={day.dateStr}
-                    className={`w-[11px] h-[11px] rounded-sm cursor-pointer transition-all duration-150`}
+                {week.map(day => (
+                  <div
+                    key={day.ds}
+                    className="heat-cell"
                     style={{
-                      backgroundColor: day.future ? 'transparent' : generateHeatmapColor(day.count, maxCount),
-                      opacity: day.future ? 0 : 1
+                      width: 10, height: 10,
+                      background: day.future ? 'transparent' : getHeatColor(day.count, maxCount),
+                      opacity: day.future ? 0 : 1,
+                      boxShadow: !day.future && day.count > 0
+                        ? `0 0 ${day.count > 5 ? 4 : 2}px ${getHeatColor(day.count, maxCount)}`
+                        : 'none'
                     }}
-                    whileHover={!day.future ? { scale: 1.8, zIndex: 10 } : {}}
-                    onMouseEnter={(e) => {
+                    onMouseEnter={e => {
                       if (!day.future) {
                         setTooltip({
-                          x: e.clientX,
-                          y: e.clientY,
+                          x: e.clientX, y: e.clientY,
                           date: format(day.date, 'MMM d, yyyy'),
-                          count: day.count,
-                          submissions: day.submissions
+                          count: day.count, submissions: day.submissions
                         });
                       }
                     }}
                     onMouseLeave={() => setTooltip(null)}
-                    initial={{ opacity: 0, scale: 0 }}
-                    animate={{ opacity: day.future ? 0 : 1, scale: 1 }}
-                    transition={{ duration: 0.2, delay: (wi * 7 + day.date.getDay()) * 0.002 }}
                   />
                 ))}
               </div>
@@ -131,34 +130,33 @@ const ContributionHeatmap = ({ data = [] }) => {
       </div>
 
       {/* Legend */}
-      <div className="flex items-center justify-end gap-2 mt-3">
-        <span className="text-xs text-slate-600">Less</span>
-        {[0, 0.25, 0.5, 0.75, 1].map((intensity) => (
-          <div
-            key={intensity}
-            className="w-3 h-3 rounded-sm"
-            style={{ backgroundColor: generateHeatmapColor(intensity * maxCount, maxCount) }}
-          />
+      <div className="flex items-center justify-end gap-1.5 mt-3">
+        <span className="text-[10px] font-mono" style={{ color: 'var(--text-3)' }}>None</span>
+        {[0, 0.2, 0.45, 0.7, 1].map(t => (
+          <div key={t} className="w-2.5 h-2.5 rounded-sm"
+            style={{ background: getHeatColor(t * maxCount, maxCount) }} />
         ))}
-        <span className="text-xs text-slate-600">More</span>
+        <span className="text-[10px] font-mono" style={{ color: 'var(--text-3)' }}>Max</span>
       </div>
 
       {/* Tooltip */}
       {tooltip && (
         <div
-          className="fixed z-50 px-3 py-2 rounded-lg text-xs pointer-events-none"
+          className="fixed z-50 px-3 py-2 rounded-xl text-xs pointer-events-none"
           style={{
-            left: tooltip.x + 12,
-            top: tooltip.y - 50,
-            background: 'rgba(4, 15, 36, 0.95)',
-            border: '1px solid rgba(6, 182, 212, 0.3)',
-            boxShadow: '0 8px 32px rgba(0,0,0,0.5)',
-            backdropFilter: 'blur(10px)'
+            left: tooltip.x + 12, top: tooltip.y - 55,
+            background: 'rgba(0,8,20,0.97)',
+            border: '1px solid rgba(0,212,255,0.25)',
+            boxShadow: '0 8px 24px rgba(0,0,0,0.7)',
+            backdropFilter: 'blur(20px)',
+            fontFamily: 'var(--font-mono)'
           }}
         >
-          <p className="text-slate-200 font-semibold">{tooltip.date}</p>
-          <p className="text-cyan-400">{tooltip.count} problems solved</p>
-          {tooltip.submissions > 0 && <p className="text-slate-400">{tooltip.submissions} submissions</p>}
+          <p className="font-semibold mb-1" style={{ color: 'var(--text)', fontFamily: 'var(--font-body)' }}>{tooltip.date}</p>
+          <p style={{ color: '#00d4ff' }}>{tooltip.count} solved</p>
+          {tooltip.submissions > 0 && (
+            <p style={{ color: 'var(--text-3)' }}>{tooltip.submissions} submissions</p>
+          )}
         </div>
       )}
     </Card>

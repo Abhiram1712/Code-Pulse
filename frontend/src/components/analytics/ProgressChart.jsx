@@ -13,13 +13,13 @@ const CustomTooltip = ({ active, payload, label }) => {
   if (!active || !payload?.length) return null;
   return (
     <div className="px-3 py-2.5 rounded-xl text-xs"
-      style={{ background: 'rgba(4,15,36,0.95)', border: '1px solid rgba(6,182,212,0.3)', backdropFilter: 'blur(10px)' }}>
-      <p className="text-slate-300 font-semibold mb-1.5">{label}</p>
+      style={{ background: 'rgba(0,8,20,0.97)', border: '1px solid rgba(0,212,255,0.2)', backdropFilter: 'blur(20px)', boxShadow: '0 8px 32px rgba(0,0,0,0.7)', fontFamily: 'var(--font-body)' }}>
+      <p className="font-semibold mb-1.5" style={{ color: 'var(--text)' }}>{label}</p>
       {payload.map(p => (
         <div key={p.name} className="flex items-center gap-2">
-          <div className="w-2 h-2 rounded-full" style={{ backgroundColor: p.color }} />
-          <span className="text-slate-400">{p.name}:</span>
-          <span className="font-bold" style={{ color: p.color }}>{p.value}</span>
+          <div className="w-2 h-2 rounded-full" style={{ backgroundColor: p.color, boxShadow: `0 0 4px ${p.color}` }} />
+          <span style={{ color: 'var(--text-2)' }}>{p.name}:</span>
+          <span className="font-bold font-mono" style={{ color: p.color }}>{p.value}</span>
         </div>
       ))}
     </div>
@@ -37,7 +37,7 @@ const PLATFORM_COLORS = {
   codeforces: '#3b82f6',
   codechef: '#cd7f32',
   interviewbit: '#22c55e',
-  total: '#06b6d4',
+  total: '#00d4ff',
 };
 
 const ProgressChart = () => {
@@ -55,32 +55,28 @@ const ProgressChart = () => {
   return (
     <Card className="lg:col-span-2">
       <CardHeader>
-        <CardTitle icon={TrendingUp}>Problems Solved Over Time</CardTitle>
+        <CardTitle icon={TrendingUp} iconBg="rgba(0,212,255,0.1)">
+          <span style={{ color: 'var(--text)' }}>Problems Over Time</span>
+        </CardTitle>
         <div className="flex items-center gap-2">
-          <div className="flex rounded-lg overflow-hidden border border-white/10">
+          <div className="flex rounded-lg overflow-hidden" style={{ border: '1px solid rgba(255,255,255,0.07)', background: 'rgba(255,255,255,0.02)' }}>
             {PERIODS.map(p => (
-              <button
-                key={p.days}
-                onClick={() => setPeriod(p.days)}
-                className={`px-3 py-1 text-xs font-medium transition-all duration-200 ${
-                  period === p.days
-                    ? 'bg-cyan-500/20 text-cyan-400'
-                    : 'text-slate-500 hover:text-slate-300'
-                }`}
-              >
+              <button key={p.days} onClick={() => setPeriod(p.days)}
+                className="px-3 py-1 text-[11px] font-mono font-medium transition-all"
+                style={period === p.days
+                  ? { background: 'rgba(0,212,255,0.12)', color: '#00d4ff' }
+                  : { color: 'var(--text-3)' }}>
                 {p.label}
               </button>
             ))}
           </div>
-          <div className="flex rounded-lg overflow-hidden border border-white/10">
+          <div className="flex rounded-lg overflow-hidden" style={{ border: '1px solid rgba(255,255,255,0.07)', background: 'rgba(255,255,255,0.02)' }}>
             {['area', 'bar'].map(t => (
-              <button
-                key={t}
-                onClick={() => setChartType(t)}
-                className={`px-3 py-1 text-xs font-medium transition-all duration-200 capitalize ${
-                  chartType === t ? 'bg-cyan-500/20 text-cyan-400' : 'text-slate-500'
-                }`}
-              >
+              <button key={t} onClick={() => setChartType(t)}
+                className="px-3 py-1 text-[11px] font-mono font-medium transition-all capitalize"
+                style={chartType === t
+                  ? { background: 'rgba(0,212,255,0.12)', color: '#00d4ff' }
+                  : { color: 'var(--text-3)' }}>
                 {t}
               </button>
             ))}

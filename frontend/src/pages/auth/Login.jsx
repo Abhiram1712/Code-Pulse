@@ -1,13 +1,14 @@
 import { useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import { motion } from 'framer-motion';
-import { Code2, ArrowRight } from 'lucide-react';
+import { Code2, ArrowRight, Eye, EyeOff, Zap, Activity } from 'lucide-react';
 import { useAuth } from '../../contexts/AuthContext';
 import toast from 'react-hot-toast';
 
 const Login = () => {
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
+  const [showPass, setShowPass] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
   const { login } = useAuth();
   const navigate = useNavigate();
@@ -27,69 +28,148 @@ const Login = () => {
   };
 
   return (
-    <div className="min-h-screen flex items-center justify-center p-4 relative overflow-hidden bg-dark-primary">
-      {/* Background elements */}
-      <div className="absolute inset-0 bg-cyber-grid bg-grid opacity-30 pointer-events-none" />
-      <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[600px] h-[600px] bg-cyan-500/20 rounded-full blur-[120px] pointer-events-none mix-blend-screen" />
-      <div className="absolute top-0 right-0 w-[400px] h-[400px] bg-purple-500/20 rounded-full blur-[100px] pointer-events-none mix-blend-screen" />
+    <div className="min-h-screen flex items-center justify-center p-4 relative overflow-hidden"
+      style={{ background: 'var(--void)' }}>
+
+      {/* Background orbs */}
+      <div className="absolute inset-0 pointer-events-none">
+        <div className="absolute top-0 left-1/3 w-[500px] h-[500px] rounded-full blur-[140px] opacity-20"
+          style={{ background: 'radial-gradient(circle, #00d4ff, transparent)' }} />
+        <div className="absolute bottom-0 right-1/4 w-[400px] h-[400px] rounded-full blur-[120px] opacity-15"
+          style={{ background: 'radial-gradient(circle, #7c3aed, transparent)' }} />
+        <div className="absolute top-1/2 left-0 w-72 h-72 rounded-full blur-[100px] opacity-10"
+          style={{ background: 'radial-gradient(circle, #e879f9, transparent)' }} />
+      </div>
+
+      {/* Grid overlay */}
+      <div className="absolute inset-0 pointer-events-none opacity-20"
+        style={{
+          backgroundImage: 'linear-gradient(rgba(0,212,255,0.05) 1px, transparent 1px), linear-gradient(90deg, rgba(0,212,255,0.05) 1px, transparent 1px)',
+          backgroundSize: '60px 60px'
+        }} />
 
       <motion.div
-        initial={{ opacity: 0, y: 20, scale: 0.95 }}
+        initial={{ opacity: 0, y: 24, scale: 0.95 }}
         animate={{ opacity: 1, y: 0, scale: 1 }}
         transition={{ duration: 0.5, ease: [0.4, 0, 0.2, 1] }}
-        className="w-full max-w-md relative z-10"
+        className="w-full max-w-sm relative z-10"
       >
-        <div className="glass-card p-8 shadow-2xl shadow-cyan-500/10 border-white/10 relative overflow-hidden">
-          {/* Subtle gradient border effect top */}
-          <div className="absolute top-0 left-0 right-0 h-1 bg-gradient-to-r from-cyan-400 via-blue-500 to-purple-500" />
-          
+        {/* Card */}
+        <div className="panel p-8 relative overflow-hidden"
+          style={{ border: '1px solid rgba(0,212,255,0.15)', boxShadow: '0 0 60px rgba(0,212,255,0.08), 0 32px 64px rgba(0,0,0,0.6)' }}>
+
+          {/* Animated top border */}
+          <div className="absolute top-0 left-0 right-0 h-px animate-gradient"
+            style={{ background: 'linear-gradient(90deg, transparent, #00d4ff, #7c3aed, #e879f9, #00d4ff, transparent)', backgroundSize: '200% 100%' }} />
+
+          {/* Logo */}
           <div className="text-center mb-8">
-            <div className="w-16 h-16 rounded-2xl mx-auto flex items-center justify-center mb-4 bg-gradient-to-br from-cyan-500 to-blue-600 shadow-neon-cyan">
-              <Code2 className="w-8 h-8 text-white" />
+            <div className="relative inline-block mb-4">
+              <div className="w-16 h-16 rounded-2xl flex items-center justify-center"
+                style={{
+                  background: 'linear-gradient(135deg, #00d4ff20, #7c3aed20)',
+                  border: '1px solid rgba(0,212,255,0.25)',
+                }}>
+                <Code2 size={28} style={{ color: '#00d4ff' }} />
+              </div>
+              {/* Pulse ring */}
+              <div className="absolute inset-0 rounded-2xl animate-pulse-glow opacity-40"
+                style={{ boxShadow: '0 0 0 3px rgba(0,212,255,0.25)' }} />
+              {/* Live dot */}
+              <div className="absolute -top-1 -right-1 flex items-center gap-1 bg-emerald-500/10 border border-emerald-500/30 px-1.5 py-0.5 rounded-full">
+                <Activity size={8} className="text-emerald-400 animate-pulse" />
+                <span className="text-emerald-400 font-mono" style={{ fontSize: '8px' }}>LIVE</span>
+              </div>
             </div>
-            <h1 className="text-3xl font-display font-bold text-white mb-2 tracking-tight">CodePulse</h1>
-            <p className="text-slate-400 text-sm">Welcome back! Ready to code?</p>
+            <h1 className="text-2xl font-bold grad-text mb-1" style={{ fontFamily: 'var(--font-display)' }}>
+              CodePulse
+            </h1>
+            <p className="text-sm" style={{ color: 'var(--text-2)' }}>Welcome back, coder 👋</p>
           </div>
 
-          <form onSubmit={handleSubmit} className="space-y-5">
+          <form onSubmit={handleSubmit} className="space-y-4">
             <div>
-              <label className="block text-xs font-semibold text-slate-400 uppercase tracking-wider mb-2">Email</label>
+              <label className="block section-label mb-2">Email</label>
               <input
+                id="login-email"
                 type="email"
                 required
-                className="input-cyber w-full py-3"
+                autoComplete="email"
                 placeholder="you@example.com"
+                className="input-field"
                 value={email}
-                onChange={(e) => setEmail(e.target.value)}
+                onChange={e => setEmail(e.target.value)}
               />
             </div>
+
             <div>
-              <label className="block text-xs font-semibold text-slate-400 uppercase tracking-wider mb-2">Password</label>
-              <input
-                type="password"
-                required
-                className="input-cyber w-full py-3"
-                placeholder="••••••••"
-                value={password}
-                onChange={(e) => setPassword(e.target.value)}
-              />
+              <label className="block section-label mb-2">Password</label>
+              <div className="relative">
+                <input
+                  id="login-password"
+                  type={showPass ? 'text' : 'password'}
+                  required
+                  autoComplete="current-password"
+                  placeholder="••••••••"
+                  className="input-field pr-10"
+                  value={password}
+                  onChange={e => setPassword(e.target.value)}
+                />
+                <button
+                  type="button"
+                  onClick={() => setShowPass(!showPass)}
+                  className="absolute right-3 top-1/2 -translate-y-1/2 transition-colors"
+                  style={{ color: 'var(--text-3)' }}
+                >
+                  {showPass ? <EyeOff size={15} /> : <Eye size={15} />}
+                </button>
+              </div>
             </div>
-            
-            <button
+
+            <motion.button
+              id="login-submit"
               type="submit"
               disabled={isLoading}
-              className="btn-neon w-full py-3.5 mt-2 flex justify-center items-center gap-2 group text-base"
+              whileTap={{ scale: 0.98 }}
+              className="btn-primary w-full py-3 mt-2 text-sm"
+              style={{ background: 'linear-gradient(135deg, #0091a8, #00d4ff, #7c3aed)' }}
             >
-              {isLoading ? 'Signing in...' : (
-                <>Sign In <ArrowRight className="w-4 h-4 group-hover:translate-x-1 transition-transform" /></>
+              {isLoading ? (
+                <span className="flex items-center gap-2">
+                  <svg className="animate-spin" width="14" height="14" viewBox="0 0 24 24" fill="none">
+                    <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4" />
+                    <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4z" />
+                  </svg>
+                  Signing in…
+                </span>
+              ) : (
+                <span className="flex items-center gap-2">
+                  Sign In <ArrowRight size={15} />
+                </span>
               )}
-            </button>
+            </motion.button>
           </form>
 
-          <p className="text-center text-sm text-slate-400 mt-8">
-            Don't have an account?{' '}
-            <Link to="/auth/register" className="text-cyan-400 hover:text-cyan-300 font-semibold transition-colors">
-              Create one
+          {/* Stats strip */}
+          <div className="mt-6 pt-5 grid grid-cols-3 gap-3"
+            style={{ borderTop: '1px solid rgba(255,255,255,0.06)' }}>
+            {[
+              { label: 'Users', value: '1K+', color: '#00d4ff' },
+              { label: 'Problems', value: '∞', color: '#7c3aed' },
+              { label: 'Streaks', value: '🔥', color: '#f97316' },
+            ].map(({ label, value, color }) => (
+              <div key={label} className="text-center">
+                <p className="text-base font-bold font-mono" style={{ color }}>{value}</p>
+                <p className="text-[10px] section-label mt-0.5">{label}</p>
+              </div>
+            ))}
+          </div>
+
+          <p className="text-center text-sm mt-5" style={{ color: 'var(--text-3)' }}>
+            New here?{' '}
+            <Link to="/auth/register" className="font-semibold transition-colors hover:text-cyan-300"
+              style={{ color: '#00d4ff' }}>
+              Create account
             </Link>
           </p>
         </div>

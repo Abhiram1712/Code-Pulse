@@ -1,5 +1,4 @@
 import { Routes, Route, Navigate } from 'react-router-dom';
-import { Toaster } from 'react-hot-toast';
 import { useAuth } from './contexts/AuthContext';
 
 // Layouts
@@ -18,7 +17,17 @@ const ProtectedRoute = ({ children }) => {
   const { isAuthenticated, loading } = useAuth();
   
   if (loading) {
-    return <div className="h-screen w-screen flex items-center justify-center bg-dark-primary text-cyan-400">Loading...</div>;
+    return (
+      <div className="h-screen w-screen flex items-center justify-center" style={{ background: 'var(--void)' }}>
+        <div className="flex flex-col items-center gap-4">
+          <div className="w-12 h-12 rounded-2xl flex items-center justify-center animate-pulse-glow"
+            style={{ background: 'linear-gradient(135deg, #00d4ff, #7c3aed)', boxShadow: '0 0 30px rgba(0,212,255,0.4)' }}>
+            <span className="text-white text-xl">⚡</span>
+          </div>
+          <p className="text-sm font-mono" style={{ color: 'var(--text-3)' }}>Initializing CodePulse…</p>
+        </div>
+      </div>
+    );
   }
   
   return isAuthenticated ? children : <Navigate to="/auth/login" />;
@@ -27,7 +36,6 @@ const ProtectedRoute = ({ children }) => {
 function App() {
   return (
     <>
-      <Toaster position="top-right" />
       <Routes>
         <Route path="/auth/login" element={<Login />} />
         <Route path="/auth/register" element={<Register />} />

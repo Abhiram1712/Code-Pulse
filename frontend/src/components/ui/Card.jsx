@@ -1,12 +1,12 @@
-import { motion } from 'framer-motion';
+import { motion, AnimatePresence } from 'framer-motion';
 import { cn } from '../../lib/utils';
 
-const Card = ({ children, className, hover = true, glow = false, delay = 0, ...props }) => (
+const Card = ({ children, className, hover = true, delay = 0, glow, ...props }) => (
   <motion.div
-    initial={{ opacity: 0, y: 20 }}
+    initial={{ opacity: 0, y: 16 }}
     animate={{ opacity: 1, y: 0 }}
     transition={{ duration: 0.4, delay, ease: [0.4, 0, 0.2, 1] }}
-    className={cn('glass-card p-6', glow && 'shadow-neon-cyan', className)}
+    className={cn('panel', hover && 'panel-hover', className)}
     {...props}
   >
     {children}
@@ -14,13 +14,17 @@ const Card = ({ children, className, hover = true, glow = false, delay = 0, ...p
 );
 
 export const CardHeader = ({ children, className }) => (
-  <div className={cn('flex items-center justify-between mb-4', className)}>{children}</div>
+  <div className={cn('card-header', className)}>{children}</div>
 );
 
-export const CardTitle = ({ children, className, icon: Icon }) => (
-  <div className={cn('flex items-center gap-2.5', className)}>
-    {Icon && <Icon className="w-4 h-4 text-cyan-400" />}
-    <h3 className="font-semibold text-sm text-slate-200">{children}</h3>
+export const CardTitle = ({ children, className, icon: Icon, iconBg }) => (
+  <div className={cn('card-title', className)}>
+    {Icon && (
+      <div className="card-title-icon" style={iconBg ? { background: iconBg } : {}}>
+        <Icon size={15} />
+      </div>
+    )}
+    <span>{children}</span>
   </div>
 );
 

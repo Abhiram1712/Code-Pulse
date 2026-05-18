@@ -5,11 +5,18 @@ const CF_BASE = 'https://codeforces.com/api';
 
 export const fetchCodeforcesStats = async (username) => {
   try {
-    const [userInfoRes, submissionsRes, ratingsRes] = await Promise.allSettled([
-      axios.get(`${CF_BASE}/user.info?handles=${username}`),
-      axios.get(`${CF_BASE}/user.status?handle=${username}&from=1&count=100`),
-      axios.get(`${CF_BASE}/user.rating?handle=${username}`)
-    ]);
+    // Make requests sequentially to avoid Codeforces rate limit (429 Too Many Requests)
+    const userInfoRes = await axios.get(`${CF_BASE}/user.info?handles=${username}`)
+      .then(res => ({ status: 'fulfilled', value: res }))
+      .catch(err => ({ status: 'rejected', reason: err }));
+      
+    const submissionsRes = await axios.get(`${CF_BASE}/user.status?handle=${username}&from=1&count=100`)
+      .then(res => ({ status: 'fulfilled', value: res }))
+      .catch(err => ({ status: 'rejected', reason: err }));
+      
+    const ratingsRes = await axios.get(`${CF_BASE}/user.rating?handle=${username}`)
+      .then(res => ({ status: 'fulfilled', value: res }))
+      .catch(err => ({ status: 'rejected', reason: err }));
 
     if (userInfoRes.status === 'rejected' || userInfoRes.value.data?.status !== 'OK') {
       throw new Error(`Codeforces user '${username}' not found`);

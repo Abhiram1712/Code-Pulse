@@ -95,7 +95,7 @@ const ProgressChart = () => {
         transition={{ duration: 0.3 }}
         className="h-56"
       >
-        <ResponsiveContainer width="100%" height="100%">
+        <ResponsiveContainer width="99%" height="100%" minWidth={1} minHeight={1}>
           {chartType === 'area' ? (
             <AreaChart data={chartData} margin={{ top: 5, right: 5, bottom: 5, left: -15 }}>
               <defs>

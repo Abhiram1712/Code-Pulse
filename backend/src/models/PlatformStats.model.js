@@ -36,6 +36,12 @@ const platformStatsSchema = new mongoose.Schema({
       lang: String,
       difficulty: String
     }],
+    contestHistory: [{
+      contestName: String,
+      rank: Number,
+      rating: Number,
+      date: Date
+    }],
     topicWiseStats: mongoose.Schema.Types.Mixed
   },
 
